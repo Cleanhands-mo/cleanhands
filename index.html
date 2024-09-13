@@ -48,7 +48,7 @@
         }
         h1 {
             font-size: 22px;
-            background-color: #333;
+            background-color: #a2b39b;  // 將背景顏色改為 #a2b39b
             color: #fff;
             padding: 10px 20px;
             border-radius: 10px;
@@ -63,16 +63,27 @@
             margin-top: 10px;
             color: #888;
         }
+        .map-button {
+            background-color: #977C00; 
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
-    <h1>日期計算</h1>
+    <h1 id="randomTitle">日期計算</h1>
     <p id="currentDateTime"></p>
     
-    <!-- 這裡插入了兩個空行 -->
-    <br>
-    <br>
-    <button onclick="calculateFutureDate()">計算15天後日期</button>
+    <div class="button-container">
+        <button onclick="calculateFutureDate()">計算15天日期</button>
+        <a href="https://www.google.com/maps/d/u/0/edit?mid=1smbxbgyDyi21YkzAcOjm2j5B3Ru5KhY&ll=22.196278957288584%2C113.54682999548615&z=16" target="_blank">
+            <button class="map-button">地圖</button>
+        </a>
+    </div>
     
     <p id="result"></p>
     <table id="futureTable" style="display: none;">
@@ -206,8 +217,15 @@
         document.getElementById('currentDateTime').textContent = `目前時間：${dateStr} ${weekdayStr} ${timeStr}`;
     }
 
-    // 頁面加載時更新當前日期和時間
+    function setRandomTitle() {
+        const titles = ["今天你累了嗎", "今天放假嗎", "今天體感溫度40度"];
+        const randomIndex = Math.floor(Math.random() * titles.length);
+        document.getElementById('randomTitle').textContent = titles[randomIndex];
+    }
+
+    // 頁面加載時更新當前日期和時間，並設置隨機標題
     updateCurrentDateTime();
+    setRandomTitle();
     // 每秒更新一次當前日期和時間
     setInterval(updateCurrentDateTime, 1000);
     </script>
