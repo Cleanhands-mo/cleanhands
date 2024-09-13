@@ -8,7 +8,6 @@
         body {
             background-color: black;
             color: white;
-            font-size: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -19,7 +18,7 @@
         }
         #result {
             color: red;
-            font-size: 22px;
+            font-size: 18px;
             margin-top: 20px;
         }
         button {
@@ -35,13 +34,57 @@
             cursor: pointer;
             border-radius: 5px;
         }
+        table {
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid white;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #333;
+        }
+        h1 {
+            font-size: 22px;
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            text-transform: uppercase;
+        }
+        #currentDateTime {
+            font-size: 20px;
+        }
+        #disclaimer {
+            font-size: 15px;
+            margin-top: 10px;
+            color: #888;
+        }
     </style>
 </head>
 <body>
-    <h1>15天後日期計算器</h1>
+    <h1>日期計算</h1>
     <p id="currentDateTime"></p>
+    
+    <!-- 這裡插入了兩個空行 -->
+    <br>
+    <br>
     <button onclick="calculateFutureDate()">計算15天後日期</button>
+    
     <p id="result"></p>
+    <table id="futureTable" style="display: none;">
+        <thead>
+            <tr>
+                <th>日期</th>
+                <th>第15天</th>
+            </tr>
+        </thead>
+        <tbody id="futureTableBody"></tbody>
+    </table>
+    <p id="disclaimer">計算結果僅供參考。</p>
 
     <script>
     // 定義特別假期
@@ -92,22 +135,6 @@
     // 定義星期幾的中文名稱
     const weekdays = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
 
-    function updateCurrentDateTime() {
-        const now = new Date();
-        const options = { 
-            timeZone: 'Asia/Shanghai',
-            year: 'numeric', 
-            month: '2-digit', 
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false
-        };
-        const dateTimeStr = now.toLocaleString('zh-CN', options);
-        document.getElementById('currentDateTime').textContent = `當前日期和時間：${dateTimeStr}`;
-    }
-
     function calculateFutureDate() {
         const today = new Date();
         let targetDate = new Date(today.getTime() + 15 * 24 * 60 * 60 * 1000);
@@ -123,8 +150,60 @@
             }
         }
 
-        const result = `${targetDate.getFullYear()}年${targetDate.getMonth() + 1}月${targetDate.getDate()}日 ${weekdays[targetDate.getDay()]}`;
+        const result = `距離15天後的日期是：${targetDate.getFullYear()}年${targetDate.getMonth() + 1}月${targetDate.getDate()}日 ${weekdays[targetDate.getDay()]}`;
         document.getElementById('result').textContent = result;
+
+        // 計算並顯示未來10天的日期
+        displayFutureDates(targetDate);
+    }
+
+    function displayFutureDates(startDate) {
+        const tableBody = document.getElementById('futureTableBody');
+        tableBody.innerHTML = '';
+
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        for (let i = 0; i < 5; i++) { // 將10改為5
+            const currentDate = new Date(tomorrow.getTime() + i * 24 * 60 * 60 * 1000);
+            const row = tableBody.insertRow();
+            
+            // 日期（不包含星期）
+            const dateCell = row.insertCell(0);
+            dateCell.textContent = `${currentDate.getFullYear()}年${currentDate.getMonth() + 1}月${currentDate.getDate()}日`;
+            
+            // 第15天（包含星期）
+            const targetWorkdayCell = row.insertCell(1);
+            const fifteenthWorkday = calculateFifteenthWorkday(currentDate);
+            targetWorkdayCell.textContent = `${fifteenthWorkday.getFullYear()}年${fifteenthWorkday.getMonth() + 1}月${fifteenthWorkday.getDate()}日 ${weekdays[fifteenthWorkday.getDay()]}`;
+        }
+
+        document.getElementById('futureTable').style.display = 'table';
+    }
+
+    function calculateFifteenthWorkday(startDate) {
+        let targetDate = new Date(startDate.getTime() + 15 * 24 * 60 * 60 * 1000);
+
+        while (true) {
+            const dayOfWeek = targetDate.getDay();
+            const dateStr = targetDate.toISOString().split('T')[0];
+
+            if (dayOfWeek === 0 || dayOfWeek === 6 || dateStr in specialHolidays) {
+                targetDate.setDate(targetDate.getDate() + 1);
+            } else {
+                break;
+            }
+        }
+
+        return targetDate;
+    }
+
+    function updateCurrentDateTime() {
+        const now = new Date();
+        const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
+        const weekdayStr = weekdays[now.getDay()];
+        const timeStr = now.toLocaleTimeString('zh-TW', { hour12: false });
+        document.getElementById('currentDateTime').textContent = `目前時間：${dateStr} ${weekdayStr} ${timeStr}`;
     }
 
     // 頁面加載時更新當前日期和時間
