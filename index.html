@@ -55,6 +55,10 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             text-transform: uppercase;
         }
+        #currentDate {
+            font-size: 28px;
+            color: orange;  
+        }
         #currentDateTime {
             font-size: 20px;
         }
@@ -73,7 +77,6 @@
             margin-top: 20px;
         }
     </style>
-</head>
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-EZTW98Q8GK"></script>
@@ -83,7 +86,7 @@
   gtag('js', new Date());
 
   gtag('config', 'G-EZTW98Q8GK');
-</script>
+</script> 
 
 <body>
     <h1 id="randomTitle">日期計算</h1>
@@ -225,7 +228,10 @@
         const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
         const weekdayStr = weekdays[now.getDay()];
         const timeStr = now.toLocaleTimeString('zh-TW', { hour12: false });
-        document.getElementById('currentDateTime').textContent = `目前時間：${dateStr} ${weekdayStr} ${timeStr}`;
+        document.getElementById('currentDateTime').innerHTML = `
+            <span id="currentDate">${dateStr}</span><br>
+            ${weekdayStr} ${timeStr}
+        `;
     }
 
     function setRandomTitle() {
@@ -234,12 +240,27 @@
         document.getElementById('randomTitle').textContent = titles[randomIndex];
     }
 
+    function updatecurrentDate(){
+        const now = new Date();
+        const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
+        const weekdayStr = weekdays[now.getDay()];
+        const timeStr = now.toLocaleTimeString('zh-TW', { hour12: false });
+        document.getElementById('currentDateTime').textContent = `目前時間：${dateStr} ${weekdayStr} ${timeStr}`;
+    }   
+
     // 頁面加載時更新當前日期和時間，並設置隨機標題
     updateCurrentDateTime();
     setRandomTitle();
     // 每秒更新一次當前日期和時間
     setInterval(updateCurrentDateTime, 1000);
-  
+
+    // 添加自動刷新函數
+    function autoRefresh() {
+        window.location.reload();
+    }
+
+    // 設置每分鐘自動刷新
+    setInterval(autoRefresh, 60000); // 60000 毫秒 = 1 分鐘
 
     </script>
 </body>
