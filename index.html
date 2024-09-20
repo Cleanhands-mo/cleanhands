@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -74,9 +75,8 @@
         }
         .map-button-container {
             position: fixed;
-            right: 600px;
-            top: 40%;
-            transform: translateY(-50%);
+            right: 10px;
+            bottom: 40px;
         }
         .map-button {
             background-color: #977C00;
@@ -129,17 +129,19 @@
 <body>
     <h1 id="randomTitle">日期計算</h1>
     <p id="currentDateTime"></p>
-    
     <p id="result"></p>
+    
     <div class="button-container">
-        <button onclick="openFutureDates()">未來五天計算結果</button>
+        <button onclick="showFutureDates()">未來五天計算結果</button>
     </div>
+    <div id="futureDatesTable" style="display: none;"></div>
+    <p id="disclaimer">計算結果僅供參考。</p>
+
     <div class="map-button-container">
         <a href="https://www.google.com/maps/d/u/0/edit?mid=1smbxbgyDyi21YkzAcOjm2j5B3Ru5KhY&ll=22.196278957288584%2C113.54682999548615&z=16" target="_blank">
             <button class="map-button">🗺️地圖</button>
         </a>
     </div>
-    <p id="disclaimer">計算結果僅供參考。</p>
 
     <div id="lastUpdated"></div>
 
@@ -211,38 +213,13 @@
         document.getElementById('result').textContent = result;
     }
 
-    function openFutureDates() {
-        const tableContent = generateFutureDatesTable();
-        const newWindow = window.open('', '_blank');
-        newWindow.document.write(`
-            <html>
-            <head>
-                <title>未來五天計算結果</title>
-                <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        background-color: black;
-                        color: white;
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        height: 100vh;
-                        margin: 0;
-                    }
-                    table {
-                        border-collapse: collapse;
-                    }
-                    th, td {
-                        border: 1px solid white;
-                        padding: 8px;
-                        text-align: center;
-                    }
-                    th {
-                        background-color: #333;
-                    }
-                </style>
-            </head>
-            <body>
+    function showFutureDates() {
+        const futureDatesTable = document.getElementById('futureDatesTable');
+        if (futureDatesTable.style.display === 'block') {
+            futureDatesTable.style.display = 'none';
+        } else {
+            const tableContent = generateFutureDatesTable();
+            futureDatesTable.innerHTML = `
                 <table>
                     <thead>
                         <tr>
@@ -254,10 +231,9 @@
                         ${tableContent}
                     </tbody>
                 </table>
-            </body>
-            </html>
-        `);
-        newWindow.document.close();
+            `;
+            futureDatesTable.style.display = 'block';
+        }
     }
 
     function generateFutureDatesTable() {
@@ -303,7 +279,8 @@
         const weekdayStr = weekdays[now.getDay()];
         const timeStr = now.toLocaleTimeString('zh-TW', { hour12: false });
         document.getElementById('currentDateTime').innerHTML = `
-            <span id="currentDate">現在時間: ${dateStr}</span> <span class="weekday-time">${weekdayStr} ${timeStr}</span>
+            <span id="currentDate">現在時間: ${dateStr}</span><br>
+            <span class="weekday-time">${weekdayStr} ${timeStr}</span>
         `;
     }
 
