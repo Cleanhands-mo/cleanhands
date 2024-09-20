@@ -17,8 +17,8 @@
             font-family: Arial, sans-serif;
         }
         #result {
+            font-size: 24px;
             color: red;
-            font-size: 22px;
             margin-top: 20px;
         }
         button {
@@ -56,11 +56,13 @@
             text-transform: uppercase;
         }
         #currentDate {
-            font-size: 28px;
+            font-size: 24px;
             color: orange;  
         }
         #currentDateTime {
-            font-size: 20px;
+            font-size: 22px;
+            color: orange;
+            margin-bottom: 22px;
         }
         #disclaimer {
             font-size: 15px;
@@ -70,11 +72,47 @@
         .map-button {
             background-color: #977C00; 
         }
+        .map-button-container {
+            position: fixed;
+            right: 600px;
+            top: 40%;
+            transform: translateY(-50%);
+        }
+        .map-button {
+            background-color: #977C00;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            white-space: nowrap;
+        }
         .button-container {
             display: flex;
             justify-content: center;
             gap: 10px;
-            margin-top: 20px;
+            margin-top: 60px;
+        }
+        .weekday-time {
+            color: grey;
+            font-size: 20px;
+        }
+        #lastUpdated {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 12px;
+            color: #888;
+        }
+        .button-container button {
+            background-color: transparent;
+            color: grey;
+            font-size: 14px;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .button-container button:hover {
+            background-color: rgba(128, 128, 128, 0.2);
         }
     </style>
 
@@ -92,24 +130,18 @@
     <h1 id="randomTitle">日期計算</h1>
     <p id="currentDateTime"></p>
     
+    <p id="result"></p>
     <div class="button-container">
-        <button onclick="calculateFutureDate()">計算15天日期</button>
+        <button onclick="openFutureDates()">未來五天計算結果</button>
+    </div>
+    <div class="map-button-container">
         <a href="https://www.google.com/maps/d/u/0/edit?mid=1smbxbgyDyi21YkzAcOjm2j5B3Ru5KhY&ll=22.196278957288584%2C113.54682999548615&z=16" target="_blank">
-            <button class="map-button">地圖</button>
+            <button class="map-button">🗺️地圖</button>
         </a>
     </div>
-    
-    <p id="result"></p>
-    <table id="futureTable" style="display: none;">
-        <thead>
-            <tr>
-                <th>日期</th>
-                <th>第15天</th>
-            </tr>
-        </thead>
-        <tbody id="futureTableBody"></tbody>
-    </table>
     <p id="disclaimer">計算結果僅供參考。</p>
+
+    <div id="lastUpdated"></div>
 
     <script>
     // 定義特別假期
@@ -177,33 +209,75 @@
 
         const result = `15天的日期：${targetDate.getFullYear()}年${targetDate.getMonth() + 1}月${targetDate.getDate()}日 ${weekdays[targetDate.getDay()]}`;
         document.getElementById('result').textContent = result;
-
-        // 計算並顯示未來10天的日期
-        displayFutureDates(targetDate);
     }
 
-    function displayFutureDates(startDate) {
-        const tableBody = document.getElementById('futureTableBody');
-        tableBody.innerHTML = '';
+    function openFutureDates() {
+        const tableContent = generateFutureDatesTable();
+        const newWindow = window.open('', '_blank');
+        newWindow.document.write(`
+            <html>
+            <head>
+                <title>未來五天計算結果</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        background-color: black;
+                        color: white;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                        margin: 0;
+                    }
+                    table {
+                        border-collapse: collapse;
+                    }
+                    th, td {
+                        border: 1px solid white;
+                        padding: 8px;
+                        text-align: center;
+                    }
+                    th {
+                        background-color: #333;
+                    }
+                </style>
+            </head>
+            <body>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>第15天</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableContent}
+                    </tbody>
+                </table>
+            </body>
+            </html>
+        `);
+        newWindow.document.close();
+    }
 
+    function generateFutureDatesTable() {
+        let tableContent = '';
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
 
-        for (let i = 0; i < 5; i++) { // 將10改為5
+        for (let i = 0; i < 5; i++) {
             const currentDate = new Date(tomorrow.getTime() + i * 24 * 60 * 60 * 1000);
-            const row = tableBody.insertRow();
-            
-            // 日期（不包含星期）
-            const dateCell = row.insertCell(0);
-            dateCell.textContent = `${currentDate.getFullYear()}年${currentDate.getMonth() + 1}月${currentDate.getDate()}日`;
-            
-            // 第15天（包含星期）
-            const targetWorkdayCell = row.insertCell(1);
             const fifteenthWorkday = calculateFifteenthWorkday(currentDate);
-            targetWorkdayCell.textContent = `${fifteenthWorkday.getFullYear()}年${fifteenthWorkday.getMonth() + 1}月${fifteenthWorkday.getDate()}日 ${weekdays[fifteenthWorkday.getDay()]}`;
+            
+            tableContent += `
+                <tr>
+                    <td>${currentDate.getFullYear()}年${currentDate.getMonth() + 1}月${currentDate.getDate()}日</td>
+                    <td>${fifteenthWorkday.getFullYear()}年${fifteenthWorkday.getMonth() + 1}月${fifteenthWorkday.getDate()}日 ${weekdays[fifteenthWorkday.getDay()]}</td>
+                </tr>
+            `;
         }
 
-        document.getElementById('futureTable').style.display = 'table';
+        return tableContent;
     }
 
     function calculateFifteenthWorkday(startDate) {
@@ -229,8 +303,7 @@
         const weekdayStr = weekdays[now.getDay()];
         const timeStr = now.toLocaleTimeString('zh-TW', { hour12: false });
         document.getElementById('currentDateTime').innerHTML = `
-            <span id="currentDate">${dateStr}</span><br>
-            ${weekdayStr} ${timeStr}
+            <span id="currentDate">現在時間: ${dateStr}</span> <span class="weekday-time">${weekdayStr} ${timeStr}</span>
         `;
     }
 
@@ -248,19 +321,28 @@
         document.getElementById('currentDateTime').textContent = `目前時間：${dateStr} ${weekdayStr} ${timeStr}`;
     }   
 
-    // 頁面加載時更新當前日期和時間，並設置隨機標題
-    updateCurrentDateTime();
-    setRandomTitle();
-    // 每秒更新一次當前日期和時間
-    setInterval(updateCurrentDateTime, 1000);
-
-    // 添加自動刷新函數
-    function autoRefresh() {
-        window.location.reload();
+    // 頁面加載時更新所有數據，並設置隨機標題
+    function updateAllData() {
+        updateCurrentDateTime();
+        calculateFutureDate();
+        updateLastUpdated();
     }
 
-    // 設置每分鐘自動刷新
-    setInterval(autoRefresh, 60000); // 60000 毫秒 = 1 分鐘
+    updateAllData();
+    setRandomTitle();
+
+    // 每秒更新一次日期時間
+    setInterval(updateCurrentDateTime, 1000);
+
+    // 每分鐘更新一次所有數據
+    setInterval(updateAllData, 60000);
+
+    function updateLastUpdated() {
+        const now = new Date();
+        const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
+        const timeStr = now.toLocaleTimeString('zh-TW', { hour12: false });
+        document.getElementById('lastUpdated').textContent = `最後更新：${dateStr} ${timeStr}`;
+    }
 
     </script>
 </body>
