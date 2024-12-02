@@ -133,6 +133,7 @@
     
     <div class="button-container">
         <button onclick="showFutureDates()">未來五天計算結果</button>
+        <button onclick="export120DaysTable()">導出120天計算結果</button>
     </div>
     <div id="futureDatesTable" style="display: none;"></div>
     <p id="disclaimer">計算結果僅供參考。</p>
@@ -319,6 +320,140 @@
         const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
         const timeStr = now.toLocaleTimeString('zh-TW', { hour12: false });
         document.getElementById('lastUpdated').textContent = `最後更新：${dateStr} ${timeStr}`;
+    }
+
+    function export120DaysTable() {
+        let excelContent = '<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?>';
+        excelContent += '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" ';
+        excelContent += 'xmlns:o="urn:schemas-microsoft-com:office:office" ';
+        excelContent += 'xmlns:x="urn:schemas-microsoft-com:office:excel" ';
+        excelContent += 'xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" ';
+        excelContent += 'xmlns:html="http://www.w3.org/TR/REC-html40">';
+        
+        // 定義樣式
+        excelContent += '<Styles>';
+        // 基本樣式
+        excelContent += '<Style ss:ID="Default" ss:Name="Normal">';
+        excelContent += '<Alignment ss:Horizontal="Center" ss:Vertical="Center"/>';
+        excelContent += '</Style>';
+        
+        // 表頭左側列樣式
+        excelContent += '<Style ss:ID="HeaderLeft">';
+        excelContent += '<Alignment ss:Horizontal="Center" ss:Vertical="Center"/>';
+        excelContent += '<Borders>';
+        excelContent += '<Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="2"/>';
+        excelContent += '<Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2"/>';
+        excelContent += '<Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>';
+        excelContent += '<Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2"/>';
+        excelContent += '</Borders>';
+        excelContent += '</Style>';
+        
+        // 表頭右側列樣式
+        excelContent += '<Style ss:ID="HeaderRight">';
+        excelContent += '<Alignment ss:Horizontal="Center" ss:Vertical="Center"/>';
+        excelContent += '<Borders>';
+        excelContent += '<Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>';
+        excelContent += '<Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2"/>';
+        excelContent += '<Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="2"/>';
+        excelContent += '<Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2"/>';
+        excelContent += '</Borders>';
+        excelContent += '</Style>';
+        
+        // 數據左側列樣式
+        excelContent += '<Style ss:ID="DataLeft">';
+        excelContent += '<Alignment ss:Horizontal="Center" ss:Vertical="Center"/>';
+        excelContent += '<Borders>';
+        excelContent += '<Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="2"/>';
+        excelContent += '<Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>';
+        excelContent += '<Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>';
+        excelContent += '</Borders>';
+        excelContent += '</Style>';
+        
+        // 數據右側列樣式
+        excelContent += '<Style ss:ID="DataRight">';
+        excelContent += '<Alignment ss:Horizontal="Center" ss:Vertical="Center"/>';
+        excelContent += '<Borders>';
+        excelContent += '<Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>';
+        excelContent += '<Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="2"/>';
+        excelContent += '<Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>';
+        excelContent += '</Borders>';
+        excelContent += '</Style>';
+        
+        // 最後一行左側列樣式
+        excelContent += '<Style ss:ID="LastRowLeft">';
+        excelContent += '<Alignment ss:Horizontal="Center" ss:Vertical="Center"/>';
+        excelContent += '<Borders>';
+        excelContent += '<Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="2"/>';
+        excelContent += '<Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>';
+        excelContent += '<Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2"/>';
+        excelContent += '</Borders>';
+        excelContent += '</Style>';
+        
+        // 最後一行右側列樣式
+        excelContent += '<Style ss:ID="LastRowRight">';
+        excelContent += '<Alignment ss:Horizontal="Center" ss:Vertical="Center"/>';
+        excelContent += '<Borders>';
+        excelContent += '<Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>';
+        excelContent += '<Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="2"/>';
+        excelContent += '<Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2"/>';
+        excelContent += '</Borders>';
+        excelContent += '</Style>';
+        excelContent += '</Styles>';
+        
+        // 創建工作表
+        excelContent += '<Worksheet ss:Name="Sheet1">';
+        excelContent += '<Table ss:DefaultColumnWidth="100">';
+        
+        // 添加表頭
+        excelContent += '<Row>';
+        for (let i = 0; i < 4; i++) {
+            excelContent += '<Cell ss:StyleID="HeaderLeft"><Data ss:Type="String">日期</Data></Cell>';
+            excelContent += '<Cell ss:StyleID="HeaderRight"><Data ss:Type="String">15日</Data></Cell>';
+        }
+        excelContent += '</Row>';
+
+        const today = new Date();
+        const rowsNeeded = Math.ceil(120 / 4);
+        
+        // 添加數據行
+        for (let row = 0; row < rowsNeeded; row++) {
+            excelContent += '<Row>';
+            for (let col = 0; col < 4; col++) {
+                const dayIndex = row + (col * rowsNeeded);
+                if (dayIndex < 120) {
+                    const currentDate = new Date(today.getTime() + dayIndex * 24 * 60 * 60 * 1000);
+                    const fifteenthWorkday = calculateFifteenthWorkday(currentDate);
+                    
+                    const startDateStr = currentDate.toISOString().split('T')[0];
+                    const endDateStr = fifteenthWorkday.toISOString().split('T')[0];
+                    
+                    const leftStyleID = (row === rowsNeeded - 1) ? "LastRowLeft" : "DataLeft";
+                    const rightStyleID = (row === rowsNeeded - 1) ? "LastRowRight" : "DataRight";
+                    
+                    excelContent += `<Cell ss:StyleID="${leftStyleID}"><Data ss:Type="String">${startDateStr}</Data></Cell>`;
+                    excelContent += `<Cell ss:StyleID="${rightStyleID}"><Data ss:Type="String">${endDateStr}</Data></Cell>`;
+                } else {
+                    const leftStyleID = (row === rowsNeeded - 1) ? "LastRowLeft" : "DataLeft";
+                    const rightStyleID = (row === rowsNeeded - 1) ? "LastRowRight" : "DataRight";
+                    
+                    excelContent += `<Cell ss:StyleID="${leftStyleID}"><Data ss:Type="String"></Data></Cell>`;
+                    excelContent += `<Cell ss:StyleID="${rightStyleID}"><Data ss:Type="String"></Data></Cell>`;
+                }
+            }
+            excelContent += '</Row>';
+        }
+        
+        excelContent += '</Table></Worksheet></Workbook>';
+
+        const blob = new Blob([excelContent], { 
+            type: 'application/vnd.ms-excel'
+        });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "120days_calculation.xls";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     </script>
