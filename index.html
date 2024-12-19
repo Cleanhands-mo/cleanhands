@@ -168,7 +168,7 @@
         "2025-04-21": "復活節前日的補假",
         "2025-05-01": "勞動節",
         "2025-05-05": "佛誕節",
-        "2025-05-31": "端午節",
+        "2025-05-31": "端午��",
         "2025-06-02": "端午節的補假",
         "2025-10-01": "中華人民共和國國慶日",
         "2025-10-02": "中華人民共和國國慶日翌日",
@@ -190,29 +190,34 @@
     const weekdays = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
 
     function calculateFutureDate() {
-        const today = new Date();
-        let targetDate = new Date(today.getTime() + 15 * 24 * 60 * 60 * 1000);
-        
-        // 添加調試信息
-        let debugInfo = `原始15天後日期：${targetDate.getFullYear()}年${targetDate.getMonth() + 1}月${targetDate.getDate()}日\n`;
-        
-        while (true) {
-            const dayOfWeek = targetDate.getDay();
-            const dateStr = targetDate.toISOString().split('T')[0];
+        try {
+            const today = new Date();
+            let targetDate = new Date(today.getTime() + 15 * 24 * 60 * 60 * 1000);
+            
+            // 添加調試信息
+            let debugInfo = `原始15天後日期：${targetDate.getFullYear()}年${targetDate.getMonth() + 1}月${targetDate.getDate()}日\n`;
+            
+            while (true) {
+                const dayOfWeek = targetDate.getDay();
+                const dateStr = targetDate.toISOString().split('T')[0];
 
-            if (dayOfWeek === 0 || dayOfWeek === 6 || dateStr in specialHolidays) {
-                debugInfo += `${dateStr} 為${dayOfWeek === 0 ? '星期日' : dayOfWeek === 6 ? '星期六' : specialHolidays[dateStr]}，順延一天\n`;
-                targetDate.setDate(targetDate.getDate() + 1);
-            } else {
-                break;
+                if (dayOfWeek === 0 || dayOfWeek === 6 || dateStr in specialHolidays) {
+                    debugInfo += `${dateStr} 為${dayOfWeek === 0 ? '星期日' : dayOfWeek === 6 ? '星期六' : specialHolidays[dateStr]}，順延一天\n`;
+                    targetDate.setDate(targetDate.getDate() + 1);
+                } else {
+                    break;
+                }
             }
-        }
 
-        const result = `15天的日期：${targetDate.getFullYear()}年${targetDate.getMonth() + 1}月${targetDate.getDate()}日 ${weekdays[targetDate.getDay()]}`;
-        document.getElementById('result').textContent = result;
-        
-        // 在控制台輸出調試信息
-        console.log(debugInfo);
+            const result = `15天的日期：${targetDate.getFullYear()}年${targetDate.getMonth() + 1}月${targetDate.getDate()}日 ${weekdays[targetDate.getDay()]}`;
+            document.getElementById('result').textContent = result;
+            
+            // 在控制台輸出調試信息
+            console.log(debugInfo);
+        } catch (error) {
+            console.error('計算日期時發生錯誤：', error);
+            document.getElementById('result').textContent = '計算錯誤，請稍後重試';
+        }
     }
 
     function showFutureDates() {
